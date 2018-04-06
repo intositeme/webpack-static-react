@@ -35,6 +35,7 @@ themes/your-theme-name/   # → Root of your Project
 │   │   ├── fonts/        # → Project fonts
 │   │   ├── images/       # → Project images
 │   │   ├── scripts/      # → Project JS
+│   │   │   ├── main.js   # → Entry Point JS (Define React Components Here)
 │   │   └── styles/       # → Project stylesheets
 │   └── templates/        # → Project Jade/Pug templates
 │       ├── layouts/      # → Base templates
