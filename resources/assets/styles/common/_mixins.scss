@@ -1,0 +1,454 @@
+/* stylelint-disable */
+// ========================================================================
+// MIXINS
+// ========================================================================
+
+// @include media-breakpoint-up(sm) {
+//     @include ipad() {
+//     }
+// }
+
+// http://petercollingridge.appspot.com/svg-optimiser
+
+// https://web-design-weekly.com/2013/05/12/handy-sass-mixins/
+@mixin box-sizing($box-model) {
+    -webkit-box-sizing: $box-model; // Safari <= 5
+    -moz-box-sizing: $box-model; // Firefox <= 19
+    box-sizing: $box-model;
+}
+
+// https://css-tricks.com/snippets/css/less-mixin-for-rem-font-sizing/
+// http://www.degordian.com/education/blog/best-practice-for-responsive-typography/
+@mixin font-size($sizeValue: 1.6, $lineHeight: 1.6, $letterSpacing:'') {
+    font-size: ($sizeValue * 10) + px;
+    font-size: $sizeValue + rem;
+
+    @if $lineHeight == 'normal' {
+        line-height: normal;
+    }
+    @else {
+        line-height: $lineHeight/($sizeValue * 10);
+    }
+
+    @if $letterSpacing == '' {
+        letter-spacing: normal;
+    }
+    @else {
+        letter-spacing: ($letterSpacing/1000) + em;
+    }
+}
+
+
+// @include calc(width, '25% - 1em');
+// http://stackoverflow.com/questions/10826064/calc-element-in-sass-css
+@mixin calc($property, $expression) {
+    #{$property}: -webkit-calc(#{$expression});
+    #{$property}: calc(#{$expression});
+}
+
+
+@mixin placeholder {
+    &::-webkit-input-placeholder {@content;}
+    &:-moz-placeholder           {@content;}
+    &::-moz-placeholder          {@content;}
+    &:-ms-input-placeholder      {@content;}
+}
+
+
+
+
+
+
+// @include btn-cancel(20px,100%,1px,transparentize($color-black,0.5));
+@mixin btn-cancel($length,$cross-length,$cross-thickness,$cross-color) {
+    position: relative;
+    width: $length;
+    height: $length;
+    cursor: pointer;
+
+    &:before,
+    &:after {
+        content: '';
+        position: absolute;
+        @include calc('top','50% - #{($cross-thickness/2)}');
+        left: (100-$cross-length)/2;
+        width: $cross-length;
+        height: $cross-thickness;
+        background-color: $cross-color;
+    }
+    &:before {
+        transform: rotate(45deg);
+    }
+    &:after {
+        transform: rotate(-45deg);
+    }
+}
+
+
+
+// @include underline-border(1px, solid, #434ea4);
+@mixin underline-border($border-width, $border-style, $border-color) {
+    border-bottom: $border-width $border-style $border-color;
+    @media print {
+        border-bottom: none;
+    }
+}
+
+
+
+// @include underline-hover('block', $color-black, 0, 1px, 0.75);
+@mixin underline-hover( $display, $color, $offset, $thickness, $transparency ) {
+    display: $display;
+    position: relative;
+
+    &:before {
+        content: ' ';
+        position: absolute;
+        bottom: $offset;
+        left: 50%;
+        transform: translate(-50%,0);
+        height: $thickness;
+        background-color: transparentize($color, $transparency);
+        transition: color 0.3s ease-out, width 0.3s ease-out, opacity 0.3s ease-out, background-color 0.3s ease-out;
+        width: 0;
+        opacity: 0;
+    }
+
+    .no-touchevents & {
+        &:hover {
+            &:before {
+                width: 100%;
+                opacity: 1;
+            }
+        }
+    }
+}
+
+
+
+
+@mixin aspect-ratio($width, $height) {
+    position: relative;
+    &:before {
+        display: block;
+        content: "";
+        width: 100%;
+        padding-top: ($height / $width) * 100%;
+    }
+    > .content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+}
+
+
+
+// https://unindented.org/articles/trigonometry-in-sass/
+@function pow($number, $exp) {
+    $value: 1;
+    @if $exp > 0 {
+        @for $i from 1 through $exp {
+            $value: $value * $number;
+        }
+    }
+    @else if $exp < 0 {
+        @for $i from 1 through -$exp {
+            $value: $value / $number;
+        }
+    }
+    @return $value;
+}
+@function fact($number) {
+    $value: 1;
+    @if $number > 0 {
+        @for $i from 1 through $number {
+            $value: $value * $i;
+        }
+    }
+    @return $value;
+}
+@function pi() {
+    @return 3.14159265359;
+}
+@function rad($angle) {
+    $unit: unit($angle);
+    $unitless: $angle / ($angle * 0 + 1);
+    // If the angle has 'deg' as unit, convert to radians.
+    @if $unit == deg {
+        $unitless: $unitless / 180 * pi();
+    }
+    @return $unitless;
+}
+@function sin($angle) {
+    $sin: 0;
+    $angle: rad($angle);
+    // Iterate a bunch of times.
+    @for $i from 0 through 10 {
+        $sin: $sin + pow(-1, $i) * pow($angle, (2 * $i + 1)) / fact(2 * $i + 1);
+    }
+    @return $sin;
+}
+@function cos($angle) {
+    $cos: 0;
+    $angle: rad($angle);
+    // Iterate a bunch of times.
+    @for $i from 0 through 10 {
+        $cos: $cos + pow(-1, $i) * pow($angle, 2 * $i) / fact(2 * $i);
+    }
+    @return $cos;
+}
+@function tan($angle) {
+    @return sin($angle) / cos($angle);
+}
+
+
+
+// @include breakpoint(xs) {
+// }
+// @include breakpoint(sm) {
+// }
+
+
+// // bootstrap variables
+// // xs = 480,
+// // sm = 768,
+// // md = 992,
+// // lg = 1200,
+// // https://medium.com/@timknight/creating-a-dead-simple-sass-mixin-to-handle-responsive-breakpoints-889927b37740
+// @mixin breakpoint($class) {
+
+//     @if $class == xs-down {
+//         @media (max-width: 480px) { @content; }
+//     }
+
+//     @else if $class == xs {
+//         @media (min-width: $screen-xs-min) { @content; }
+//     }
+
+//     @else if $class == sm {
+//         @media (min-width: $screen-sm-min) { @content; }
+//     }
+
+//     @else if $class == md {
+//         @media (min-width: $screen-md-min) { @content; }
+//     }
+
+//     @else if $class == lg {
+//         @media (min-width: $screen-lg-min) { @content; }
+//     }
+
+//     @else {
+//         @warn "Breakpoint mixin supports: xs, sm, md, lg";
+//     }
+// }
+
+
+// // @include scrollable-gradient-indicator( vertical, 80px, rgba(32,40,44,1), rgba(32,40,44,0.9), rgba(32,40,44,0) );
+// @mixin scrollable-gradient-indicator( $direction, $length, $point1, $point2, $point3 ) {
+
+//     &:before,
+//     &:after {
+//         content: ' ';
+//         position: absolute;
+//         z-index: 1;
+//         pointer-events: none;
+
+//         // to reset
+//         top: auto;
+//         left: auto;
+//         right: auto;
+//         bottom: auto;
+//     }
+
+//     @if $direction == vertical {
+
+//         &:before,
+//         &:after {
+//             left: 0;
+//             height: $length;
+//             width: 100%;
+//         }
+
+//         &:before {
+//             top: 0;
+//             background: -moz-linear-gradient(top, $point1 0%, $point2 25%, $point3 100%);
+//             background: -webkit-linear-gradient(top, $point1 0%, $point2 25%, $point3 100%);
+//             background: linear-gradient(to bottom, $point1 0%, $point2 25%, $point3 100%);
+//             // filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#20282c', endColorstr='#00000000',GradientType=1 );
+//         }
+//         &:after {
+//             bottom: 0;
+//             background: -moz-linear-gradient(top, $point3 0%, $point2 75%, $point1 100%);
+//             background: -webkit-linear-gradient(top, $point3 0%, $point2 75%, $point1 100%);
+//             background: linear-gradient(to bottom, $point3 0%, $point2 75%, $point1 100%);
+//             // filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#20282c',GradientType=1 );
+//         }
+
+//     }
+
+//     @else if $direction == horizontal {
+
+//         &:before,
+//         &:after {
+//             top: 0;
+//             height: 100%;
+//             width: $length;
+//         }
+
+//         &:before {
+//             left: 0;
+//             background: none;
+//             @include breakpoint(sm) {
+//                 background: -moz-linear-gradient(left,  $point1 0%, $point2 25%, $point3 100%);
+//                 background: -webkit-linear-gradient(left,  $point1 0%,$point2 25%,$point3 100%);
+//                 background: linear-gradient(to right, $point1 0%,$point2 25%,$point3 100%);
+//                 // filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#20282c', endColorstr='#00000000',GradientType=1 );
+//             }
+//         }
+//         &:after {
+//             right: 0;
+//             background: none;
+//             @include breakpoint(sm) {
+//                 background: -moz-linear-gradient(left, $point3 0%, $point2 75%, $point1 100%);
+//                 background: -webkit-linear-gradient(left, $point3 0%,$point2 75%,$point1 100%);
+//                 background: linear-gradient(to right, $point3 0%,$point2 75%,$point1 100%);
+//                 // filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00000000', endColorstr='#20282c',GradientType=1 );
+//             }
+//         }
+
+//     }
+
+//     @else {
+//         @warn "Scrollable gradient indicator mixin params: $direction, $from, $to";
+//     }
+
+// }
+
+
+
+
+
+
+// https://maximilianhoffmann.com/posts/better-font-rendering-on-osx
+@mixin font-smoothing($value: on) {
+    @if $value == on {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    @else {
+        -webkit-font-smoothing: subpixel-antialiased;
+        -moz-osx-font-smoothing: auto;
+    }
+}
+
+
+
+
+
+
+// apply to body
+@mixin debug-breakpoint($version, $text:'', $outline:'' ) {
+
+    @if $version == 4 {
+        @if $text == true {
+            &:after {
+                position: fixed;
+                top:0;
+                left: 0;
+                z-index: 9999;
+                font-size: 50px;
+                color: black;
+                text-shadow: 0 0 2px white;
+                pointer-events: none;
+                content: 'xs';
+                @include media-breakpoint-up(sm) {
+                    content: 'sm';
+                }
+                @include media-breakpoint-up(md) {
+                    content: 'md';
+                }
+                @include media-breakpoint-up(lg) {
+                    content: 'lg';
+                }
+                @include media-breakpoint-up(xl) {
+                    content: 'xl';
+                }
+                @include media-breakpoint-up(xxl) {
+                    content: 'xxl';
+                }
+                @include media-breakpoint-up(xxxl) {
+                    content: 'xxxl';
+                }
+            }
+        }
+        @if $outline == true {
+            * {
+                outline: 1px solid transparentize(grey, 0.75);
+                @include media-breakpoint-up(sm) {
+                    outline: 1px solid transparentize(red, 0.75);
+                }
+                @include media-breakpoint-up(md) {
+                    outline: 1px solid transparentize(green, 0.75);
+                }
+                @include media-breakpoint-up(lg) {
+                    outline: 1px solid transparentize(blue, 0.75);
+                }
+                @include media-breakpoint-up(xl) {
+                    outline: 1px solid transparentize(cyan, 0.75);
+                }
+                @include media-breakpoint-up(xxl) {
+                    outline: 1px solid transparentize(yellow, 0.75);
+                }
+                @include media-breakpoint-up(xxxl) {
+                    outline: 1px solid transparentize(magenta, 0.75);
+                }
+            }
+        }
+    }
+
+    @if $version == 3 {
+        @if $text == true {
+            &:after {
+                position: fixed;
+                top:0;
+                left: 0;
+                z-index: 9999;
+                font-size: 50px;
+                color: black;
+                text-shadow: 0 0 2px white;
+                pointer-events: none;
+                content: 'xs';
+                @include breakpoint(sm) {
+                    content: 'sm';
+                }
+                @include breakpoint(md) {
+                    content: 'md';
+                }
+                @include breakpoint(lg) {
+                    content: 'lg';
+                }
+            }
+        }
+        @if $outline == true {
+            * {
+                outline: 1px solid transparentize(grey, 0.75);
+                @include breakpoint(sm) {
+                    outline: 1px solid transparentize(red, 0.75);
+                }
+                @include breakpoint(md) {
+                    outline: 1px solid transparentize(green, 0.75);
+                }
+                @include breakpoint(lg) {
+                    outline: 1px solid transparentize(blue, 0.75);
+                }
+            }
+        }
+    }
+
+}
+
+
+/* stylelint-enable  */

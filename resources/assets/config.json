@@ -1,0 +1,24 @@
+{
+  "staticPages": [
+    "index"
+  ],
+  "entry": {
+    "main": [
+      "./scripts/main.js",
+      "./styles/main.scss"
+    ],
+    "customizer": [
+      "./scripts/customizer.js"
+    ]
+  },
+  "publicPath": "",
+  "staticAppendPath": "",
+  "devUrl": "http://static-site.test",
+  "proxyUrl": "http://localhost:7000",
+  "cacheBusting": "[name]_[hash:8]",
+  "watch": [
+    "resources/assets/scripts/**/*.js",
+    "resources/assets/styles/**/*.scss",
+    "resources/assets/template/**/*.pug"
+  ]
+}
